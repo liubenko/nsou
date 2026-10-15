@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Регуляція</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root{
+    --bg:var(--tg-theme-bg-color,#fff);
+    --sec:var(--tg-theme-secondary-bg-color,#f1f1f4);
+    --txt:var(--tg-theme-text-color,#000);
+    --hint:var(--tg-theme-hint-color,#8a8a8e);
+    --link:var(--tg-theme-link-color,#2f81f7);
+    --btn:var(--tg-theme-button-color,#2f81f7);
+    --btntxt:var(--tg-theme-button-text-color,#fff);
+    --warn:#e8554e; --good:#2faa5d; --rest:#e2863a;
+    --line:rgba(138,138,142,.28);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--bg);color:var(--txt);
+       font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+       padding-bottom:env(safe-area-inset-bottom)}
+  .wrap{padding:12px 14px 96px;max-width:620px;margin:0 auto}
+  h1{font-size:19px;margin:2px 0 2px;font-weight:650}
+  .sub{color:var(--hint);font-size:12.5px;margin-bottom:12px}
+  .tabs{position:sticky;top:0;z-index:5;display:flex;gap:4px;background:var(--bg);
+        padding:8px 0 10px;border-bottom:1px solid var(--line)}
+  .tab{flex:1;padding:8px 4px;border:0;border-radius:9px;background:var(--sec);color:var(--txt);
+       font:inherit;font-weight:560;font-size:13.5px}
+  .tab[aria-selected=true]{background:var(--btn);color:var(--btntxt)}
+  .toggles{display:flex;gap:8px;margin:12px 0 4px}
+  .tg{flex:1;display:flex;align-items:center;justify-content:space-between;gap:8px;
+      background:var(--sec);border:0;border-radius:11px;padding:9px 11px;color:var(--txt);font:inherit;font-size:13px}
+  .tg b{font-weight:600}
+  .pill{font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:999px;
+        background:rgba(138,138,142,.22);color:var(--hint)}
+  .tg[aria-pressed=true] .pill{background:var(--btn);color:var(--btntxt)}
+  .legend{display:flex;gap:12px;font-size:11.5px;color:var(--hint);margin:10px 0 2px}
+  .legend i{width:9px;height:9px;border-radius:3px;display:inline-block;margin-right:4px}
+  .row{display:flex;align-items:center;gap:11px;padding:10px 11px;border-radius:12px;
+       background:var(--sec);margin-top:7px}
+  .row.rest{background:rgba(226,134,58,.16)}
+  .row.work{background:rgba(47,170,93,.16)}
+  .pl{min-width:25px;height:25px;border-radius:8px;display:grid;place-items:center;
+      font-size:12.5px;font-weight:700;background:var(--bg);color:var(--hint)}
+  .row.rest .pl{background:var(--rest);color:#fff}
+  .row.work .pl{background:var(--good);color:#fff}
+  .nm{flex:1;min-width:0}
+  .nm b{display:block;font-weight:600;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nm span{color:var(--hint);font-size:11.5px}
+  .bal{text-align:right;font-variant-numeric:tabular-nums}
+  .bal b{display:block;font-size:16px;font-weight:700}
+  .bal span{color:var(--hint);font-size:11px}
+  .pos{color:var(--rest)} .neg{color:var(--good)}
+  .card{background:var(--sec);border-radius:13px;padding:13px;margin-top:11px}
+  .card h3{margin:0 0 9px;font-size:14.5px;font-weight:650}
+  .kv{display:flex;justify-content:space-between;gap:10px;padding:5px 0;font-size:13.5px;
+      border-top:1px solid var(--line)}
+  .kv:first-of-type{border-top:0}
+  .kv span{color:var(--hint)} .kv b{font-variant-numeric:tabular-nums;font-weight:620}
+  label{display:block;font-size:12px;color:var(--hint);margin:11px 0 4px;font-weight:550}
+  input,select,textarea{width:100%;padding:10px 11px;border-radius:10px;border:1px solid var(--line);
+    background:var(--bg);color:var(--txt);font:inherit;font-size:15px}
+  .two{display:flex;gap:9px}.two>div{flex:1}
+  .mus{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:11px;
+       background:var(--bg);margin-top:6px;border:1px solid var(--line)}
+  .mus.on{border-color:var(--btn);background:rgba(47,129,247,.12)}
+  .mus>b{flex:1;font-weight:550;font-size:14px}
+  .code{min-width:46px;padding:6px 9px;border-radius:9px;border:0;background:var(--sec);
+        color:var(--txt);font:inherit;font-weight:700;font-size:13px}
+  .mus.on .code{background:var(--btn);color:var(--btntxt)}
+  .cnt{display:flex;justify-content:space-between;align-items:center;margin-top:12px;
+       padding:10px 12px;border-radius:11px;background:var(--sec);font-size:13.5px;font-weight:600}
+  .cnt.bad{background:rgba(232,85,78,.18);color:var(--warn)}
+  .cnt.ok{background:rgba(47,170,93,.18)}
+  .msg{padding:12px;border-radius:11px;background:var(--sec);font-size:13.5px;margin-top:12px}
+  .msg.err{background:rgba(232,85,78,.18);color:var(--warn)}
+  .msg.ok{background:rgba(47,170,93,.18)}
+  .mini{font-size:11.5px;color:var(--hint);margin-top:7px;line-height:1.45}
+  .sheet{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.45);display:none;align-items:flex-end}
+  .sheet.open{display:flex}
+  .sheet>div{background:var(--bg);width:100%;border-radius:16px 16px 0 0;padding:16px 14px;
+             max-height:76vh;overflow:auto;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+  .opt{display:flex;gap:11px;align-items:baseline;width:100%;text-align:left;padding:11px;
+       border:0;border-radius:11px;background:var(--sec);color:var(--txt);font:inherit;margin-top:7px}
+  .opt kbd{font:inherit;font-weight:800;min-width:30px;color:var(--btn)}
+  .opt small{color:var(--hint);font-size:11.5px;display:block}
+  .hide{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Черга регуляції</h1>
+  <div class="sub" id="period">завантаження…</div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab" data-t="q" aria-selected="true">Черга</button>
+    <button class="tab" data-t="n" aria-selected="false">Внести</button>
+    <button class="tab" data-t="m" aria-selected="false">Я</button>
+  </div>
+
+  <section id="v-q">
+    <div class="toggles">
+      <button class="tg" id="tBonus" aria-pressed="true"><b>Бонус</b><span class="pill">з бонусом</span></button>
+      <button class="tg" id="tTour" aria-pressed="false"><b>Гастролі</b><span class="pill">без</span></button>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--rest)"></i>на відпочинок</span>
+      <span><i style="background:var(--good)"></i>на роботу</span>
+    </div>
+    <div id="list"></div>
+    <div class="mini">Перший у черзі відпочиває, останній виходить. Порядок важливіший за знак балансу:
+      коли бонус увімкнений, усі можуть бути в плюсі, бо група винна людям регуляцію за минулі сезони.</div>
+  </section>
+
+  <section id="v-n" class="hide"></section>
+  <section id="v-m" class="hide"></section>
+</div>
+
+<div class="sheet" id="sheet"><div><h3 style="margin:0 0 4px;font-size:15px" id="sheetTitle">Код</h3>
+  <div class="mini" style="margin-bottom:4px">Що поставити цій людині в цій службі</div>
+  <div id="sheetOpts"></div></div></div>
+
+<script>
+/* ========== НАЛАШТУВАННЯ: вставити адресу Apps Script (…/exec) ========== */
+const API = 'ВСТАВ_СЮДИ_АДРЕСУ_APPS_SCRIPT';
+/* ====================================================================== */
+
+const tgApp = window.Telegram ? window.Telegram.WebApp : null;
+if (tgApp) { tgApp.ready(); tgApp.expand(); }
+
+const $ = s => document.querySelector(s);
+const el = (t, c, x) => { const n = document.createElement(t); if (c) n.className = c; if (x != null) n.textContent = x; return n; };
+const f1 = v => (Math.round((+v || 0) * 10) / 10).toLocaleString('uk-UA', { maximumFractionDigits: 1 });
+const sg = v => ((+v || 0) > 0 ? '+' : '') + f1(v);
+const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
+
+let S = { user: null, people: [], meta: null, period: null, recent: [], bonus: true, tour: false, tab: 'q' };
+
+async function api(action, payload) {
+  const r = await fetch(API, {
+    method: 'POST', redirect: 'follow',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action, payload, initData: tgApp ? tgApp.initData : '' })
+  });
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.error || 'Помилка сервера');
+  return j.data;
+}
+
+/* ------------------------------------------------------------- черга */
+function side(p) { return S.tour ? p.tour : p.noTour; }
+function balExits(p) { const s = side(p); return S.bonus ? s.totalExits : s.workExits; }
+function balHours(p) { const s = side(p); return S.bonus ? s.totalHours : s.workHours; }
+function shownExits(p) { const s = side(p); return S.bonus ? s.withBonusExits : s.exits; }
+function shownHours(p) { const s = side(p); return S.bonus ? s.withBonusHours : s.hours; }
+
+function renderQueue() {
+  $('#tBonus').setAttribute('aria-pressed', S.bonus);
+  $('#tBonus').querySelector('.pill').textContent = S.bonus ? 'з бонусом' : 'лише період';
+  $('#tTour').setAttribute('aria-pressed', S.tour);
+  $('#tTour').querySelector('.pill').textContent = S.tour ? 'з гастролями' : 'без';
+
+  const rows = S.people.slice().sort((a, b) => balExits(b) - balExits(a) || balHours(b) - balHours(a));
+  const box = $('#list'); box.textContent = '';
+  rows.forEach((p, i) => {
+    const r = el('div', 'row' + (i < 4 ? ' rest' : i >= rows.length - 4 ? ' work' : ''));
+    r.append(el('div', 'pl', i + 1));
+    const n = el('div', 'nm'); n.append(el('b', '', p.name),
+      el('span', '', f1(shownExits(p)) + ' вих · ' + f1(shownHours(p)) + ' год'));
+    r.append(n);
+    const b = el('div', 'bal'), v = balExits(p);
+    const bb = el('b', v > 0 ? 'pos' : v < 0 ? 'neg' : '', sg(v));
+    b.append(bb, el('span', '', sg(balHours(p)) + ' год'));
+    r.append(b);
+    r.onclick = () => { S.tab = 'm'; S.me = p.name; paint(); };
+    box.append(r);
+  });
+}
+
+/* ---------------------------------------------------------------- я */
+function renderMe() {
+  const v = $('#v-m'); v.textContent = '';
+  const name = S.me || (S.user && S.user.name);
+  const p = S.people.find(x => x.name === name);
+  if (!p) {
+    v.append(Object.assign(el('div', 'msg'), { textContent:
+      'Не знайшов вашого прізвища серед активних музикантів. Перевірте, що ПІБ у «Доступ TG» '
+      + 'написане точно як у «Музикантах».' }));
+    return;
+  }
+  const a = side(p);
+  const card = (title, pairs) => {
+    const c = el('div', 'card'); c.append(el('h3', '', title));
+    pairs.forEach(([k, val]) => {
+      const d = el('div', 'kv'); d.append(el('span', '', k), el('b', '', val)); c.append(d);
+    });
+    return c;
+  };
+  v.append(el('h1', '', p.name));
+  v.append(Object.assign(el('div', 'sub'), { textContent:
+    (S.tour ? 'з гастролями' : 'без гастролей') + ' · ' + (S.bonus ? 'з бонусом' : 'лише цей період') }));
+  v.append(card('Баланс', [
+    ['Баланс виходів', sg(S.bonus ? a.totalExits : a.workExits)],
+    ['Баланс годин', sg(S.bonus ? a.totalHours : a.workHours)],
+    ['Місце в черзі', (S.people.slice().sort((x, y) => balExits(y) - balExits(x))
+      .findIndex(x => x.name === p.name) + 1) + ' з ' + S.people.length]
+  ]));
+  v.append(card('Робота за період', [
+    ['Зараховано виходів', f1(a.exits)],
+    ['Норма виходів', f1(a.normExits)],
+    ['Зараховано годин', f1(a.hours)],
+    ['Норма годин', f1(a.normHours)],
+    ['Доступно служб', f1(p.services)]
+  ]));
+  v.append(card('Деталі', [
+    ['Акомпанементів', f1(p.accomp) + ' · ' + f1(p.accompHours) + ' год'],
+    ['Відпущень за регуляцією', f1(p.regul)],
+    ['Платних замін', f1(p.paid)],
+    ['Подвійних', f1(p.dbl)],
+    ['Обміни: не вийшов / вийшов', f1(p.swapOut) + ' / ' + f1(p.swapIn)],
+    ['Коригування годин', sg(p.adjust)],
+    ['Бонус', f1(p.bonusExits) + ' вих · ' + f1(p.bonusHours) + ' год']
+  ]));
+}
+
+/* ----------------------------------------------------------- внести */
+const CODE_HINT = { '1': 'Працював', 'З': 'Платна заміна (заплатив)', 'Д': 'Подвійний — 2 місця',
+  'О': 'Обмін — не вийшов', 'П': 'Грав заміну за колегу', 'В': 'Регуляція',
+  'Л': 'Лікарняний', 'ВІД': 'Відпустка', 'Г': 'Гастролі з іншим складом' };
+let F = { kind: 'work', codes: [] };
+
+function renderForm() {
+  const v = $('#v-n'); v.textContent = '';
+  if (!S.user || !S.user.admin) {
+    v.append(Object.assign(el('div', 'msg'), { textContent: 'Вносити дані може лише адміністратор.' }));
+    return;
+  }
+  const m = S.meta;
+  if (!F.codes.length) F.codes = m.names.map((_, i) => (m.active[i] ? '1' : ''));
+
+  const kind = el('div', 'toggles');
+  [['work', 'Служба'], ['acc', 'Акомпанемент']].forEach(([k, t]) => {
+    const b = el('button', 'tg', ''); b.setAttribute('aria-pressed', F.kind === k);
+    b.append(el('b', '', t), el('span', 'pill', F.kind === k ? 'обрано' : ''));
+    b.onclick = () => { F.kind = k; renderForm(); };
+    kind.append(b);
+  });
+  v.append(kind);
+
+  const add = (lab, node) => { v.append(el('label', '', lab)); v.append(node); return node; };
+
+  if (F.kind === 'work') {
+    const d = add('Дата', Object.assign(el('input'), { type: 'date', id: 'f_date', value: F.date || today() }));
+    d.oninput = e => F.date = e.target.value;
+    const sel = el('select'); sel.id = 'f_type';
+    m.types.forEach(t => sel.append(Object.assign(el('option'), { value: t, textContent: t })));
+    sel.value = F.type || m.types[0] || '';
+    sel.oninput = e => F.type = e.target.value;
+    add('Тип служби', sel);
+    add('Програма / твір', Object.assign(el('input'), { id: 'f_prog', value: F.program || '' }))
+      .oninput = e => F.program = e.target.value;
+    const two = el('div', 'two');
+    const w1 = el('div'), w2 = el('div');
+    w1.append(el('label', '', 'Години'));
+    const h = Object.assign(el('input'), { id: 'f_hours', type: 'number', step: '0.25', min: '0',
+      inputMode: 'decimal', value: F.hours != null ? F.hours : '' });
+    h.oninput = e => { F.hours = e.target.value; };
+    w1.append(h);
+    w2.append(el('label', '', 'Склад за планом (5–10)'));
+    const pl = Object.assign(el('input'), { id: 'f_plan', type: 'number', min: '5', max: '10',
+      inputMode: 'numeric', value: F.plan != null ? F.plan : 8 });
+    pl.oninput = e => { F.plan = e.target.value; updCount(); };
+    w2.append(pl);
+    two.append(w1, w2); v.append(two);
+  } else {
+    const sel = el('select'); sel.id = 'f_sid';
+    (S.recent || []).forEach(r => sel.append(Object.assign(el('option'),
+      { value: r.id, textContent: r.id + ' · ' + r.date + ' · ' + (r.program || r.type) })));
+    sel.value = F.serviceId || (S.recent[0] && S.recent[0].id) || '';
+    sel.oninput = e => F.serviceId = e.target.value;
+    add('ID служби з «Робота» (дата й програма підтягнуться)', sel);
+    add('Соліст / твір', Object.assign(el('input'), { id: 'f_solist', value: F.solist || '' }))
+      .oninput = e => F.solist = e.target.value;
+    const two = el('div', 'two'); const w1 = el('div'), w2 = el('div');
+    w1.append(el('label', '', 'Години'));
+    const h = Object.assign(el('input'), { id: 'f_hours', type: 'number', step: '0.25', min: '0',
+      inputMode: 'decimal', value: F.hours != null ? F.hours : '' });
+    h.oninput = e => { F.hours = e.target.value; };
+    w1.append(h);
+    w2.append(el('label', '', 'Склад за планом (4–10)'));
+    const pl = Object.assign(el('input'), { id: 'f_plan', type: 'number', min: '4', max: '10',
+      inputMode: 'numeric', value: F.plan != null ? F.plan : 6 });
+    pl.oninput = e => { F.plan = e.target.value; updCount(); };
+    w2.append(pl);
+    two.append(w1, w2); v.append(two);
+  }
+
+  v.append(el('label', '', 'Склад — тапніть, щоб зняти або поставити'));
+  m.names.forEach((nm, i) => {
+    if (!nm) return;
+    const row = el('div', 'mus' + (F.codes[i] === '1' ? ' on' : ''));
+    row.append(el('b', '', nm));
+    const c = el('button', 'code', F.codes[i] || '—');
+    c.onclick = ev => { ev.stopPropagation(); openSheet(i, nm); };
+    row.onclick = () => { F.codes[i] = F.codes[i] === '1' ? '' : '1'; renderForm(); };
+    row.append(c); v.append(row);
+  });
+
+  const cnt = el('div', 'cnt'); cnt.id = 'cnt'; v.append(cnt);
+  v.append(Object.assign(el('div', 'mini'), { textContent:
+    'Код Д займає два місця. «О» і «П» не зараховуються як вихід. '
+    + 'Після збереження деталі заміни чи обміну впишіть у «Деталях» на аркуші «Заміни і обміни».' }));
+  const out = el('div'); out.id = 'out'; v.append(out);
+  updCount();
+}
+
+function slots() {
+  return F.codes.reduce((s, c) => s + (c === '1' || c === 'З' ? 1 : c === 'Д' ? 2 : 0), 0);
+}
+function updCount() {
+  const c = $('#cnt'); if (!c) return;
+  const s = slots(), p = +((document.getElementById('f_plan') || {}).value || F.plan || 0);
+  c.textContent = ''; c.className = 'cnt ' + (s === p ? 'ok' : 'bad');
+  c.append(el('span', '', 'Зайнято місць'), el('b', '', s + ' з ' + p));
+  if (tgApp) {
+    tgApp.MainButton.setText(F.kind === 'work' ? 'Додати службу' : 'Додати акомпанемент');
+    tgApp.MainButton.show();
+  }
+}
+
+function openSheet(i, nm) {
+  const box = $('#sheetOpts'); box.textContent = '';
+  $('#sheetTitle').textContent = nm;
+  [['', 'Не в складі']].concat(Object.keys(CODE_HINT).map(k => [k, CODE_HINT[k]])).forEach(([k, h]) => {
+    const b = el('button', 'opt');
+    b.append(el('kbd', '', k || '—'));
+    const d = el('div'); d.append(el('div', '', h)); b.append(d);
+    b.onclick = () => { F.codes[i] = k; $('#sheet').classList.remove('open'); renderForm(); };
+    box.append(b);
+  });
+  $('#sheet').classList.add('open');
+}
+$('#sheet').onclick = e => { if (e.target.id === 'sheet') e.target.classList.remove('open'); };
+
+async function submit() {
+  const out = $('#out'); if (!out) return;
+  const plan = +((document.getElementById('f_plan') || {}).value || 0);
+  const hours = +((document.getElementById('f_hours') || {}).value || 0);
+  out.textContent = '';
+  if (!hours) { out.append(Object.assign(el('div', 'msg err'), { textContent: 'Вкажіть години.' })); return; }
+  const payload = F.kind === 'work'
+    ? { date: (document.getElementById('f_date') || {}).value, type: F.type || S.meta.types[0],
+        program: F.program || '', hours, plan, codes: F.codes }
+    : { serviceId: (document.getElementById('f_sid') || {}).value, solist: F.solist || '',
+        hours, plan, codes: F.codes };
+  if (F.kind === 'work' && !payload.date) {
+    out.append(Object.assign(el('div', 'msg err'), { textContent: 'Вкажіть дату.' })); return;
+  }
+  if (tgApp) tgApp.MainButton.showProgress();
+  try {
+    const r = await api(F.kind === 'work' ? 'addService' : 'addAccomp', payload);
+    S.people = r.people;
+    out.append(Object.assign(el('div', 'msg ok'), { textContent:
+      'Збережено: ' + r.saved.id + ' (рядок ' + r.saved.row + '). Перевірка: ' + r.saved.check }));
+    if (tgApp) tgApp.HapticFeedback.notificationOccurred('success');
+    F.program = ''; F.solist = ''; F.hours = '';
+    S.recent = [{ id: r.saved.id, date: payload.date || '', program: payload.program || '', type: F.type || '' }]
+      .concat(S.recent || []).slice(0, 10);
+  } catch (e) {
+    out.append(Object.assign(el('div', 'msg err'), { textContent: e.message }));
+    if (tgApp) tgApp.HapticFeedback.notificationOccurred('error');
+  } finally { if (tgApp) tgApp.MainButton.hideProgress(); }
+}
+if (tgApp) tgApp.MainButton.onClick(submit);
+
+/* --------------------------------------------------------------- каркас */
+function paint() {
+  ['q', 'n', 'm'].forEach(t => $('#v-' + t).classList.toggle('hide', t !== S.tab));
+  document.querySelectorAll('.tab').forEach(b =>
+    b.setAttribute('aria-selected', b.dataset.t === S.tab));
+  if (tgApp) { if (S.tab === 'n') updCount(); else tgApp.MainButton.hide(); }
+  if (S.tab === 'q') renderQueue();
+  if (S.tab === 'n') renderForm();
+  if (S.tab === 'm') renderMe();
+}
+$('#tabs').onclick = e => {
+  const b = e.target.closest('.tab'); if (!b) return;
+  S.tab = b.dataset.t; if (S.tab === 'm') S.me = S.user && S.user.name; paint();
+};
+$('#tBonus').onclick = () => { S.bonus = !S.bonus; paint(); };
+$('#tTour').onclick = () => { S.tour = !S.tour; paint(); };
+
+(async function boot() {
+  try {
+    const d = await api('init');
+    S.user = d.user; S.people = d.people; S.meta = d.meta; S.period = d.period; S.recent = d.recent;
+    S.me = d.user.name;
+    $('#period').textContent = d.period.from + ' – ' + d.period.to
+      + ' · ' + (d.user.admin ? 'адміністратор' : 'перегляд');
+    if (!d.user.admin) document.querySelector('.tab[data-t=n]').classList.add('hide');
+    paint();
+  } catch (e) {
+    $('#period').textContent = '';
+    $('#list').append(Object.assign(el('div', 'msg err'), { textContent: e.message }));
+  }
+})();
+</script>
+</body>
+</html>
